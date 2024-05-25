@@ -333,7 +333,7 @@ def main(config):
                 api_key = api_key,
                 units = system_of_measurement,
             )
-            raw_current_conditions = get_current_weather_conditions(request_url, 300)  # TTL of 5 min.
+            raw_current_conditions = get_current_weather_conditions(request_url, 600)  # TTL of 10 min. (One Call API 3.0 is based on the proprietary OpenWeather Model and is only updated every 10 minutes.)
 
             result_current_conditions["icon"] = {"id": int(raw_current_conditions["current"]["weather"][0]["id"]), "code": str(raw_current_conditions["current"]["weather"][0]["icon"])}
             result_current_conditions["temp"] = int(raw_current_conditions["current"]["temp"])
