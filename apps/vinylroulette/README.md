@@ -2,6 +2,8 @@
 
 Display a random vinyl from your Discogs collection on your Tidbyt device!
 
+![Vinyl Roulette screenshot](Screenshot.png)
+
 ## Features
 
 - 🎵 Shows a random album from your Discogs collection

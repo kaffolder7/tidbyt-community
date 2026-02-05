@@ -6,14 +6,14 @@ Author: kaffolder7
 Shows: Album art, Artist, Title, Track count, Total duration
 """
 
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("cache.star", "cache")
-load("random.star", "random")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
+# load("humanize.star", "humanize")
+# load("encoding/base64.star", "base64")
 
 # Discogs API base URL
 DISCOGS_API_BASE = "https://api.discogs.com"
@@ -22,9 +22,9 @@ DISCOGS_API_BASE = "https://api.discogs.com"
 COLLECTION_CACHE_KEY = "discogs_collection_%s"
 RELEASE_CACHE_KEY = "discogs_release_%s"
 COLLECTION_CACHE_TTL = 21600  # 6 hours (matches your refresh interval)
-RELEASE_CACHE_TTL = 86400     # 24 hours (release data rarely changes)
+RELEASE_CACHE_TTL = 86400  # 24 hours (release data rarely changes)
 FOLDERS_CACHE_KEY = "discogs_folders_%s"
-FOLDERS_CACHE_TTL = 86400     # 24 hours (folder names rarely change)
+FOLDERS_CACHE_TTL = 86400  # 24 hours (folder names rarely change)
 
 # Tidbyt display dimensions
 DISPLAY_WIDTH = 64
@@ -35,6 +35,7 @@ def main(config):
 
     # Get configuration values
     credentials = config.str("credentials", "")
+
     # folder_id = config.str("folder_id", "0")  # Default to "0" (All folders)
     folder_id = config.str("folder_id", "f_0")  # Default to "f_0" (All folders)
 
@@ -66,7 +67,6 @@ def main(config):
     # Render the display
     return render_vinyl(config, release_data)
 
-
 def get_random_release(username, token, folder_id = "f_0"):
     """
     Fetches a random *vinyl* release from the user's Discogs collection.
@@ -87,7 +87,6 @@ def get_random_release(username, token, folder_id = "f_0"):
     # Folder name lookup (folder_id -> name)
     folder_map = get_folder_map(username, headers)
 
-
     # # Strip the "f_" prefix if present (added to prevent scientific notation)
     # if folder_id and folder_id.startswith("f_"):
     #     folder_id = folder_id[2:]
@@ -106,7 +105,6 @@ def get_random_release(username, token, folder_id = "f_0"):
 
     # if not is_numeric or folder_id == "":
     #     folder_id = "0"
-
 
     # Normalize folder_id (schema dropdown returns strings like "f_0").
     # Always coerce to string, strip whitespace, then strip the "f_" prefix if present.
@@ -135,7 +133,7 @@ def get_random_release(username, token, folder_id = "f_0"):
             folder_id,
         )
 
-        resp = http.get(collection_url, headers=headers)
+        resp = http.get(collection_url, headers = headers)
 
         if resp.status_code != 200:
             # return {"error": "API error: %d" % resp.status_code}
@@ -153,7 +151,7 @@ def get_random_release(username, token, folder_id = "f_0"):
         }
 
         # Cache the collection info
-        cache.set(cache_key, json.encode(collection_info), ttl_seconds=COLLECTION_CACHE_TTL)
+        cache.set(cache_key, json.encode(collection_info), ttl_seconds = COLLECTION_CACHE_TTL)
 
     total_items = int(collection_info["total_items"])
 
@@ -181,7 +179,7 @@ def get_random_release(username, token, folder_id = "f_0"):
             page,
         )
 
-        resp = http.get(page_url, headers=headers)
+        resp = http.get(page_url, headers = headers)
         if resp.status_code != 200:
             return {"error": "Failed to fetch page"}
 
@@ -232,7 +230,6 @@ def get_random_release(username, token, folder_id = "f_0"):
         folder_name = folder_map.get(folder_id, "this folder")
         return {"error": "No Vinyl found in %s" % folder_name}
 
-
 def get_release_details(release_id, headers):
     """
     Fetches detailed release information including tracklist.
@@ -251,7 +248,7 @@ def get_release_details(release_id, headers):
 
     # Fetch release details
     release_url = "%s/releases/%d" % (DISCOGS_API_BASE, release_id)
-    resp = http.get(release_url, headers=headers)
+    resp = http.get(release_url, headers = headers)
 
     if resp.status_code != 200:
         return {"tracks": 0, "duration": "", "duration_seconds": 0}
@@ -281,10 +278,9 @@ def get_release_details(release_id, headers):
     }
 
     # Cache the result
-    cache.set(cache_key, json.encode(result), ttl_seconds=RELEASE_CACHE_TTL)
+    cache.set(cache_key, json.encode(result), ttl_seconds = RELEASE_CACHE_TTL)
 
     return result
-
 
 def parse_duration(duration_str):
     """Parses a duration string like '3:45' or '1:23:45' into seconds."""
@@ -308,7 +304,6 @@ def parse_duration(duration_str):
 
     return 0
 
-
 def format_duration(total_seconds):
     """Formats seconds into a readable duration string."""
 
@@ -322,7 +317,6 @@ def format_duration(total_seconds):
         return "%dh %dm" % (hours, minutes)
     else:
         return "%dm" % minutes
-
 
 def get_artist_name(artists):
     """Extracts the primary artist name from the artists array."""
@@ -349,7 +343,6 @@ def get_artist_name(artists):
     else:
         return names[0] + " & others"
 
-
 def is_vinyl(formats):
     # """True if any of the formats has name == 'Vinyl'."""
     # if not formats:
@@ -363,7 +356,6 @@ def is_vinyl(formats):
             return True
     return False
 
-
 def get_folder_map(username, headers):
     """
     Returns a dict mapping folder_id (as a string) -> folder name.
@@ -375,7 +367,7 @@ def get_folder_map(username, headers):
         return json.decode(cached)
 
     url = "%s/users/%s/collection/folders" % (DISCOGS_API_BASE, username)
-    resp = http.get(url, headers=headers)
+    resp = http.get(url, headers = headers)
     if resp.status_code != 200:
         # Non-fatal: we'll just omit folder names.
         return {}
@@ -388,9 +380,8 @@ def get_folder_map(username, headers):
         if fid >= 0:
             folder_map[str(fid)] = f.get("name", "")
 
-    cache.set(cache_key, json.encode(folder_map), ttl_seconds=FOLDERS_CACHE_TTL)
+    cache.set(cache_key, json.encode(folder_map), ttl_seconds = FOLDERS_CACHE_TTL)
     return folder_map
-
 
 def get_format(formats):
     """Extracts the primary format (e.g., 'LP', '12\"', 'CD')."""
@@ -400,13 +391,11 @@ def get_format(formats):
 
     return formats[0].get("name", "")
 
-
 def hold(frame, n):
     # Repeat `frame` n times (at least once)
     if n < 1:
         n = 1
     return [frame] * n
-
 
 def render_vinyl(config, release_data):
     """Renders the release information for the Tidbyt display."""
@@ -449,8 +438,8 @@ def render_vinyl(config, release_data):
         if art_resp.status_code == 200:
             album_art = art_resp.body()
 
-    root_delay_ms = 50          # fast for marquees
-    hold_ms = 3000              # 3 seconds per text
+    root_delay_ms = 50  # fast for marquees
+    hold_ms = 3000  # 3 seconds per text
     n = hold_ms // root_delay_ms
     stats_color = config.str("album_stats_color", "#888888")
 
@@ -478,25 +467,25 @@ def render_vinyl(config, release_data):
 
     # Year (always show if present)
     if len(info_parts) > 0 and info_parts[0]:
-        text0 = render.Text(content=info_parts[0], font="tom-thumb", color=stats_color)
+        text0 = render.Text(content = info_parts[0], font = "tom-thumb", color = stats_color)
         children += hold(text0, n)
 
     # Number of tracks (only include if it exists and is non-empty)
     if len(info_parts) > 1 and info_parts[1]:
-        text1 = render.Text(content=info_parts[1], font="tom-thumb", color=stats_color)
+        text1 = render.Text(content = info_parts[1], font = "tom-thumb", color = stats_color)
         children += hold(text1, n)
 
     # Album duration (only include if it exists and is non-empty)
     if len(info_parts) > 2 and info_parts[2]:
-        text2 = render.Text(content=info_parts[2], font="tom-thumb", color=stats_color)
+        text2 = render.Text(content = info_parts[2], font = "tom-thumb", color = stats_color)
         children += hold(text2, n)
 
     # Fallback: ensure at least one frame
     if len(children) == 0:
         # children = [render.Box()]
-        children = [render.Text(content="", font="tom-thumb", color=stats_color)]
+        children = [render.Text(content = "", font = "tom-thumb", color = stats_color)]
 
-    info_cycler = render.Animation(children=children)
+    info_cycler = render.Animation(children = children)
 
     # Build the display layout
     if album_art:
@@ -544,7 +533,7 @@ def render_vinyl(config, release_data):
                                 child = render.Text(
                                     content = artist,
                                     font = "tom-thumb",
-                                    color = config.str("album_artist_color", "#AAAAAA")
+                                    color = config.str("album_artist_color", "#AAAAAA"),
                                 ),
                             ),
                             # render.Box(width = 0, height = 4),  # Spacer
@@ -610,7 +599,7 @@ def render_vinyl(config, release_data):
                             child = render.Text(
                                 content = artist,
                                 font = "tom-thumb",
-                                color = config.str("album_artist_color", "#AAAAAA")
+                                color = config.str("album_artist_color", "#AAAAAA"),
                             ),
                         ),
                         # render.Box(width = 0, height = 4),  # Spacer
@@ -645,7 +634,6 @@ def render_vinyl(config, release_data):
             ),
         )
 
-
 def render_error(message):
     """Renders an error message on the display."""
 
@@ -661,13 +649,13 @@ def render_error(message):
         ),
     )
 
-
 def folder_dropdown_handler(credentials):
     """
     Handler for schema.Generated that fetches folders from Discogs.
     Receives the credentials field value in format "username:token".
     Returns a list containing a Dropdown populated with user's collection folders.
     """
+
     # Parse the combined credentials (format: "username:token")
     username = ""
     token = ""
@@ -737,6 +725,7 @@ def folder_dropdown_handler(credentials):
         # Check if this is the "All" folder (id=0)
         if folder_id == 0:
             has_all_folder = True
+
             # Put "All Folders" first with a clearer name
             options.insert(0, schema.Option(
                 display = "All Folders (%s)" % folder_name,
@@ -767,7 +756,6 @@ def folder_dropdown_handler(credentials):
             options = options,
         ),
     ]
-
 
 def stats_options_handler(show_stats):
     """
@@ -807,7 +795,6 @@ def stats_options_handler(show_stats):
         ]
     else:
         return []  # Hide these fields when stats are disabled
-
 
 def get_schema():
     """
@@ -865,7 +852,7 @@ def get_schema():
             ),
             schema.Generated(
                 id = "stats_options",
-                source = "show_stats",      # Watch this field
+                source = "show_stats",  # Watch this field
                 handler = stats_options_handler,  # Call this when it changes
             ),
         ],
