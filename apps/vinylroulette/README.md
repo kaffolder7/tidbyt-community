@@ -2,7 +2,7 @@
 
 Display a random vinyl from your Discogs collection on your Tidbyt device!
 
-![Vinyl Roulette screenshot](Screenshot.png)
+![Vinyl Roulette screenshot](Screenshot.gif)
 
 ## Features
 
