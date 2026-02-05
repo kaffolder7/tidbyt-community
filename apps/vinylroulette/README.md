@@ -16,98 +16,17 @@ Display a random vinyl from your Discogs collection on your Tidbyt device!
 ## What You'll Need
 
 1. **A Tidbyt device** (obviously!)
-2. **Pixlet CLI** - Tidbyt's development tool
-3. **A Discogs account** with some records in your collection
-4. **A Discogs Personal Access Token**
+2. **A Discogs account** with some records in your collection
+3. **A Discogs Personal Access Token**
 
 ## Setup Instructions
 
-### Step 1: Install Pixlet
-
-**macOS (with Homebrew):**
-```bash
-brew install tidbyt/tidbyt/pixlet
-```
-
-**Other platforms:**
-Download from [Pixlet releases](https://github.com/tidbyt/pixlet/releases)
-
-### Step 2: Get Your Discogs Personal Access Token
+### Step 1: Get Your Discogs Personal Access Token
 
 1. Log into [Discogs](https://www.discogs.com)
 2. Go to **Settings** → **Developers** (or visit [discogs.com/settings/developers](https://www.discogs.com/settings/developers))
 3. Click **"Generate new token"**
 4. Copy the token - you'll need it to configure the app
-
-### Step 3: Test the App Locally
-
-<!--```bash
-# Serve the app locally with your credentials
-pixlet serve vinyl_roulette.star \
-  --watch \
-  -- username=YOUR_DISCOGS_USERNAME \
-  -- token=YOUR_DISCOGS_TOKEN
-```-->
-```bash
-# Serve the app locally with your credentials
-pixlet serve vinyl_roulette.star --watch
-```
-
-Open http://localhost:8080 in your browser to see the preview.
-
-### Step 4: Push to Your Tidbyt
-
-First, get your Tidbyt device ID and API key from the Tidbyt mobile app:
-- Open the app → Settings → Get API Key
-
-<!--```bash
-# Render the app
-pixlet render vinyl_roulette.star \
-  username=YOUR_DISCOGS_USERNAME \
-  token=YOUR_DISCOGS_TOKEN
-
-# Push to your device (one-time display)
-pixlet push YOUR_DEVICE_ID vinyl_roulette.webp \
-  --api-token YOUR_TIDBYT_API_TOKEN
-
-# Or push with an installation ID for persistent rotation
-pixlet push YOUR_DEVICE_ID vinyl_roulette.webp \
-  --api-token YOUR_TIDBYT_API_TOKEN \
-  --installation-id "discogs-vinyl"
-```-->
-```bash
-# Render the app
-pixlet render vinyl_roulette.star
-
-# Push to your device (one-time display)
-pixlet push YOUR_DEVICE_ID vinyl_roulette.webp \
-  --api-token YOUR_TIDBYT_API_TOKEN
-
-# Or push with an installation ID for persistent rotation
-pixlet push YOUR_DEVICE_ID vinyl_roulette.webp \
-  --api-token YOUR_TIDBYT_API_TOKEN \
-  --installation-id "vinyl-roulette"
-```
-
-## Setting Up Automatic Updates (Every 6 Hours)
-
-Since you want the vinyl to change every 6 hours, you'll need to set up a scheduled task.
-
-### Option A: Using cron (macOS/Linux)
-
-```bash
-# Open crontab editor
-crontab -e
-
-# Add this line to run every 6 hours
-0 */6 * * * cd /path/to/app && pixlet render vinyl_roulette.star credentials=YOUR_USERNAME:YOUR_PERSONAL_ACCESS_TOKEN && pixlet push YOUR_DEVICE_ID vinyl_roulette.webp --api-token YOUR_API_TOKEN --installation-id "vinyl-roulette"
-```
-
-### Option B: Submit to Community Apps
-
-For automatic scheduled rendering without managing your own cron jobs, you can submit to [Tidbyt Community Apps](https://github.com/tidbyt/community). Once accepted, Tidbyt's servers handle the rendering/pushing automatically!
-
-See: https://tidbyt.dev/docs/publish/community-apps
 
 ## How It Works
 
@@ -122,13 +41,6 @@ See: https://tidbyt.dev/docs/publish/community-apps
 Discogs API allows:
 - **60 requests/minute** for authenticated users
 - The app makes 2-3 requests per refresh (well within limits)
-
-## Customization Ideas
-
-Want to customize? Here are some ideas:
-
-- **Filter by format**: Only show LPs, 7"s, etc.<!--- **Show year**: Display the release year--><!--- **Different color schemes**: Modify the color values in the render functions-->
-- **Animated transitions**: Add animation frames for smooth album changes
 
 ## Troubleshooting
 
